@@ -3,8 +3,10 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent))
+# Add project root to path (backend/)
+# Current file: backend/tests/test_endpoints.py
+# Root needed: backend/
+sys.path.append(str(Path(__file__).parent.parent))
 
 from app.main import app
 from app.routers.auth import get_current_user
@@ -70,27 +72,13 @@ def test_predict_endpoint_mocked():
         "YearsWithCurrManager": 2
     }
 
-    # Mock the predictor service to avoid loading heavy ML models during API test
-    with MagicMock() as mock_predictor:
-        # We need to mock src.predict.get_predictor too if it's called inside the route
-        # Ideally we'd patch it. For now, assuming ML model loads fast enough or we just test structure.
-        # If ML model loading fails, this test fails. 
-        # For robustness, let's just assert 500 if ML model not found, or 200 if found.
-        # To properly mock internal function calls, we'd need 'unittest.mock.patch'.
-        pass
-
     # Since we can't easily patch the inner function without side effects in this simple script,
     # we will rely on the route handling mechanism.
-    # Note: If src.predict fails (e.g. model not found), this returns 500.
-    
     response = client.post("/predict", json=employee_data)
     
-    # We accept 200 (Success) or 500 (ML model issues) as 'Architecture working' 
-    # because we are testing the API routing, not the ML model existence here.
     if response.status_code == 200:
         assert "churn_probability" in response.json()
     else:
-        # If it fails, print why
         print(f"Prediction failed (expected if models missing): {response.text}")
 
 if __name__ == "__main__":
