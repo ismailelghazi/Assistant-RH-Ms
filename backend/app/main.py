@@ -12,10 +12,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS (Allow frontend to connect)
+# CORS middleware - must specify exact origin when using credentials
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173",
+        "https://hybrid-analyzer.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,0 +1,7 @@
+front/
+.git
+.env
+backend/venv
+backend/__pycache__
+*.pyc
+.DS_Store

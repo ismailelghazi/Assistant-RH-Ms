@@ -9,7 +9,7 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class RetentionAgent:
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
+        self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
         
     def generate_plan(self, employee_data: dict, risk_level: str) -> str:
         prompt = f"""
