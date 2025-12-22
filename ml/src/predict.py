@@ -62,8 +62,28 @@ class ChurnPredictor:
         df = pd.DataFrame([employee_data])
         
         # Preprocess
-        X = self.preprocessor.transform(df)
+        X = df.copy()
         
+        # Check if preprocessor is a dict (from generate_model.py) or an object
+        if isinstance(self.preprocessor, dict):
+            for col, encoder in self.preprocessor.items():
+                if col in X.columns:
+                    # Handle unknown labels gracefully
+                    X[col] = X[col].apply(lambda x: encoder.transform([x])[0] if x in encoder.classes_ else 0)
+        else:
+            # Assume it's a ColumnTransformer/Pipeline
+            X = self.preprocessor.transform(X)
+        
+        
+        # Align columns to what the model expects
+        if self.feature_names:
+            # Add missing columns with 0 (safeguard)
+            for col in self.feature_names:
+                if col not in X.columns:
+                    X[col] = 0
+            # Reorder and filter
+            X = X[self.feature_names]
+
         # Predict
         probability = self.model.predict_proba(X)[0, 1]
         prediction = int(probability >= 0.5)
